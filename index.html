@@ -689,14 +689,9 @@ ul.tips li.on b{color:var(--accent)}
     $("flow").innerHTML = flow;
 
     var needCash = isBuyFirst ? r.buyOut : Math.max(0, r.buyOut - r.sellIn);
-    var foot = "";
-    foot += '<div class="ff"><div class="k">' + (isBuyFirst ? "需预先备足资金" : "所需额外资金") + "</div>"
+    // 只保留「需备资金」一项：净现金流与 KPI 净盈利、费用占比与明细表费用合计行重复，不再重复展示
+    $("flowFoot").innerHTML = '<div class="ff"><div class="k">' + (isBuyFirst ? "需预先备足资金" : "所需额外资金") + "</div>"
       + '<div class="v">' + yuan(needCash, 2) + "</div></div>";
-    foot += '<div class="ff"><div class="k">净现金流（回款 − 支出）</div>'
-      + '<div class="v ' + cls(r.net) + '">' + sgn(r.net) + yuan(Math.abs(r.net), 2) + "</div></div>";
-    foot += '<div class="ff"><div class="k">费用合计占价差</div>'
-      + '<div class="v">' + (Math.abs(r.gross) > 0.0000001 ? (r.totalFee / Math.abs(r.gross) * 100).toFixed(1) + "%" : "—") + "</div></div>";
-    $("flowFoot").innerHTML = foot;
 
     // --- 明细表 ---
     var rows = "";
@@ -818,9 +813,7 @@ ul.tips li.on b{color:var(--accent)}
       w.push((isBuyFirst ? "卖价低于保本线" : "买回价高于保本线") + "，本次做T为亏损，持仓成本将被抬高 "
         + Math.abs(r.perShareCut).toFixed(4) + " 元/股。");
     }
-    if (isBuyFirst && c.tShares > 0 && r.buyOut > 0){
-      w.push("正T 请先备足 " + yuan(r.buyOut, 2) + " 现金（含费用）；卖出回款约 " + yuan(r.sellIn, 2) + "。");
-    }
+    // 「正T 需备足现金」不在此处重复提示：执行流程下方已有「需预先备足资金」，卖出回款见流程第 2 步
     $("inputWarn").innerHTML = w.join("<br>");
 
     // --- 费率提示 ---
