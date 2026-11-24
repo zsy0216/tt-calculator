@@ -1686,31 +1686,43 @@ ul.tips li.on b{color:var(--accent)}
 
   function saveRecord(){
     var c = posConfig();          // 费率不进记录，由全局配置统一提供
+    var label = ($("label").value || "").trim().slice(0, 24);
+    // 标的+方向+股数（持仓股数、做T股数）都相同 → 视为同一条记录：
+    // 仅价格（成本价/买入价/卖出价）不同就在原记录上更新，不新增。
+    // 优先匹配当前回填的记录，其次任意一条符合的已有记录。
+    var same = null;
+    for (var i = 0; i < RECS.length; i++){
+      var x = RECS[i], xp = normP(x.p);
+      if (x.dir === DIR && x.label === label
+          && xp.shares === c.shares && xp.tShares === c.tShares){
+        if (x.id === CURRENT_REC){ same = x; break; }
+        if (!same) same = x;
+      }
+    }
+    if (same){
+      var sp = normP(same.p);
+      var priceChanged = sp.cost !== c.cost || sp.buyPrice !== c.buyPrice || sp.sellPrice !== c.sellPrice;
+      same.p = c;
+      same.createdAt = Date.now();
+      persist();
+      CURRENT_REC = same.id;
+      renderRecords();
+      toast(priceChanged ? "股数未变，已在原记录上更新价格" : "与已有记录相同，已更新时间");
+      return;
+    }
     var rec = {
       id: "r" + Date.now() + Math.random().toString(36).slice(2, 6),
-      label: ($("label").value || "").trim().slice(0, 24),
+      label: label,
       dir: DIR,
       createdAt: Date.now(),
       p: c
     };
-    var dup = RECS.filter(function(x){
-      return x.dir === rec.dir && x.label === rec.label
-        && normP(x.p).shares === c.shares && normP(x.p).cost === c.cost
-        && normP(x.p).tShares === c.tShares && normP(x.p).buyPrice === c.buyPrice
-        && normP(x.p).sellPrice === c.sellPrice;
-    });
-    var msg;
-    if (dup.length){
-      RECS = RECS.filter(function(x){ return x.id !== dup[0].id; });
-      msg = "与已有记录相同，已更新时间";
-    } else {
-      msg = "已保存" + (rec.label ? "：" + rec.label : "本次参数");
-    }
     RECS.unshift(rec);
     var dropped = trimRecs();
     persist();
     CURRENT_REC = rec.id;
     renderRecords();
+    var msg = "已保存" + (rec.label ? "：" + rec.label : "本次参数");
     toast(dropped ? (msg + "；已达上限 " + REC_MAX + " 条，最旧的 " + dropped + " 条已移除") : msg);
   }
 
