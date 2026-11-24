@@ -339,7 +339,6 @@ ul.tips li.on b{color:var(--accent)}
       <section class="panel">
         <h3 class="ph">执行流程 <span class="cnt" id="flowDir"></span></h3>
         <ol class="steps" id="flow"></ol>
-        <div class="flowfoot" id="flowFoot"></div>
       </section>
 
       <section class="panel">
@@ -617,9 +616,7 @@ ul.tips li.on b{color:var(--accent)}
 
     // --- KPI 2 做T后成本 ---
     $("vCost").innerHTML = r.newCost.toFixed(3) + "<small>元</small>";
-    var dc = r.newCost - c.cost;
-    $("sCost").innerHTML = "原成本 " + c.cost.toFixed(3) + " → <span class='" + cls(-dc) + "'>"
-      + (dc <= 0 ? "↓ " : "↑ ") + Math.abs(dc).toFixed(3) + "</span>";
+    $("sCost").textContent = "原成本 " + c.cost.toFixed(3) + " 元";   // 降幅只在「每股成本降低」卡显示，不重复
 
     // --- KPI 3 每股降本 ---
     var kc = $("kCut");
@@ -661,7 +658,7 @@ ul.tips li.on b{color:var(--accent)}
       var dm = midCost - c.cost;
       $("vMid").innerHTML = midCost.toFixed(3) + "<small>元</small>";
       $("sMid").innerHTML = "第1步后持仓 " + fmt(midShares, 0) + " 股 · 较原成本 <span class='" + cls(-dm) + "'>"
-        + (dm <= 0 ? "↓ " : "↑ ") + Math.abs(dm).toFixed(3) + "</span> · 第2步完成后 " + r.newCost.toFixed(3);
+        + (dm <= 0 ? "↓ " : "↑ ") + Math.abs(dm).toFixed(3) + "</span>";   // 最终成本只在「做T后持仓成本价」卡显示
     }
 
     // --- 执行流程 ---
@@ -679,19 +676,10 @@ ul.tips li.on b{color:var(--accent)}
         + '<span class="sfee">　' + (st.inflow ? "回款" : "支出") + "（成交额 " + yuan(st.p * c.tShares, 2)
         + " ，费用 " + yuan(st.fee, 3) + "）</span></div></li>";
     }
-    var flow = stepLi(st1, 1);
-    if (hasMid && midCost > 0){
-      flow += '<li class="mid"><span class="num"></span>'
-        + '<div class="st">中间态 · 持仓 ' + fmt(midShares, 0) + ' 股</div>'
-        + '<div class="stv">成本 ' + midCost.toFixed(3) + ' 元</div></li>';
-    }
-    flow += stepLi(st2, 2);
+    // 中间态成本只在 KPI 大卡显示，流程里不再重复一行
+    var flow = stepLi(st1, 1) + stepLi(st2, 2);
     $("flow").innerHTML = flow;
-
-    var needCash = isBuyFirst ? r.buyOut : Math.max(0, r.buyOut - r.sellIn);
-    // 只保留「需备资金」一项：净现金流与 KPI 净盈利、费用占比与明细表费用合计行重复，不再重复展示
-    $("flowFoot").innerHTML = '<div class="ff"><div class="k">' + (isBuyFirst ? "需预先备足资金" : "所需额外资金") + "</div>"
-      + '<div class="v">' + yuan(needCash, 2) + "</div></div>";
+    // 流程底部不再设汇总格：需备资金即第 1 步支出额（流程行内已含费用），其余指标各有唯一出处
 
     // --- 明细表 ---
     var rows = "";
@@ -703,23 +691,14 @@ ul.tips li.on b{color:var(--accent)}
     var shTxt = fmt(c.tShares, 0) + " 股";
     var buyPxTxt = c.buyPrice.toFixed(3), sellPxTxt = c.sellPrice.toFixed(3);
 
-    // v21：第 1 步执行后的中间态成本（正T=买入后 / 反T=卖出后），与最终成本同为摊薄口径
-    var dirSub;
-    if (isBuyFirst){
-      dirSub = "先买入 " + shTxt;
-      if (r.hasAfterBuy) dirSub += "（买入后成本 " + r.costAfterBuy.toFixed(3) + "）";
-      dirSub += "，后卖出 " + shTxt;
-    } else {
-      dirSub = "先卖出 " + shTxt;
-      if (r.hasAfterSell) dirSub += "（卖出后成本 " + r.costAfterSell.toFixed(3) + "）";
-      dirSub += "，后买回 " + shTxt;
-    }
+    // 中间态成本只在 KPI 大卡显示，此处小字不再重复
+    var dirSub = isBuyFirst ? ("先买入 " + shTxt + "，后卖出 " + shTxt)
+                            : ("先卖出 " + shTxt + "，后买回 " + shTxt);
     rows += tr("做T方向", isBuyFirst ? "正T · 先买后卖" : "反T · 先卖后买", dirSub);
     rows += tr("价差（卖出价 − 买入价）",
       '<span class="' + cls(r.spread) + '">' + sgn(r.spread) + Math.abs(r.spread).toFixed(3)
       + "</span> 元/股（" + pct(r.spreadRate, 3) + "）",
-      "买入 " + buyPxTxt + " → 卖出 " + sellPxTxt
-      + (hasBe ? "　保本价 " + be.toFixed(3) + "（差 " + (isBuyFirst ? (be - c.buyPrice) : (c.sellPrice - be)).toFixed(4) + "）" : ""));
+      "买入 " + buyPxTxt + " → 卖出 " + sellPxTxt);   // 保本价只在 KPI 卡显示
     rows += tr("买入金额", yuan(r.buyAmount), shTxt + " × " + buyPxTxt + " 元");
     rows += tr("卖出金额", yuan(r.sellAmount), shTxt + " × " + sellPxTxt + " 元");
     rows += tr("价差毛收益（未扣费）",
@@ -741,13 +720,7 @@ ul.tips li.on b{color:var(--accent)}
     rows += tr("费用合计", yuan(r.totalFee, 3),
       "买入 " + yuan(r.buyFee, 3) + " + 卖出 " + yuan(r.sellFee, 3)
       + "　占毛价差 " + (Math.abs(r.gross) > 1e-9 ? (r.totalFee / Math.abs(r.gross) * 100).toFixed(1) + "%" : "—"));
-    rows += '<tr class="sum"><td>做T净盈利</td><td><span class="' + cls(r.net) + '">'
-      + sgn(r.net) + yuan(Math.abs(r.net), 3) + "</span>"
-      + '<span class="tsub">毛价差 ' + sgn(r.gross) + yuan(Math.abs(r.gross), 3) + " − 费用 " + yuan(r.totalFee, 3)
-      + "　成本 " + c.cost.toFixed(3) + " → " + r.newCost.toFixed(3) + "</span></td></tr>";
-    rows += tr("做T资金收益率（净盈利 ÷ 占用资金）", pct(r.retOnBuy, 3),
-      "净盈利 " + sgn(r.net) + yuan(Math.abs(r.net)) + " ÷ " + yuan(r.buyOut, 2)
-      + "　每股降 " + Math.abs(r.perShareCut).toFixed(4) + " 元");
+    // 明细表止于「费用合计」：净盈利、收益率、每股降本均只在 KPI 区显示一次，不在表内重复汇总
     $("detail").innerHTML = rows;
 
     // --- 敏感性表：按价格有序排列 ---
