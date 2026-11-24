@@ -15,7 +15,7 @@
 body{margin:0;background:var(--bg);color:var(--text);
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
   font-size:14px;line-height:1.55;-webkit-font-smoothing:antialiased}
-.wrap{max-width:1480px;margin:0 auto;padding:22px 18px 40px}
+.wrap{max-width:1480px;margin:0 auto;padding:14px 16px 28px}
 h1{font-size:20px;margin:0 0 3px;letter-spacing:.01em}
 .sub{color:var(--muted);font-size:12.5px;margin-bottom:16px}
 /* 三栏：输入 | 结果 | 历史记录。记录独立成栏、纵向铺满，不再挤在左栏底部只有两条可见。
@@ -42,15 +42,18 @@ h1{font-size:20px;margin:0 0 3px;letter-spacing:.01em}
   .grid{grid-template-columns:1fr}
   .col-l,.col-r{grid-column:auto}
 }
-.col-l,.col-r{display:flex;flex-direction:column;gap:14px}
+.col-l,.col-r{display:flex;flex-direction:column;gap:10px}
 /* 右栏按内容自然高度排布，不粘住视口、不限高：历史记录全部展开，
    同步状态等内容顺次排在记录下面，整页一起滚动。 */
 @media(min-width:1101px){
   .col-r .panel.rec-panel{display:flex;flex-direction:column;min-height:0;flex:0 0 auto}
 }
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:13px;
   box-shadow:0 1px 2px rgba(16,30,54,.045)}
-.ph{font-size:13px;font-weight:600;margin:0 0 13px;display:flex;align-items:center;gap:8px}
+.ph{font-size:13px;font-weight:600;margin:0 0 9px;display:flex;align-items:center;gap:8px}
+details.tips-panel>summary{cursor:pointer;margin-bottom:0;list-style:none}
+details.tips-panel>summary::-webkit-details-marker{display:none}
+details.tips-panel[open ]>summary{margin-bottom:9px}
 .ph::before{content:"";width:3px;height:14px;border-radius:2px;background:var(--accent);flex:none}
 .ph .cnt{margin-left:auto;font-weight:400;font-size:11.5px;color:var(--muted);text-align:right}
 .field{margin-bottom:11px}
@@ -102,28 +105,31 @@ input[type=text]::placeholder{color:#b6c2d2;font-size:13px}
   font-size:12px;color:var(--warn);line-height:1.65;margin-top:10px}
 .warnbox:empty{display:none}
 /* KPI */
-.kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 @media(max-width:560px){.kpis{grid-template-columns:1fr}}
-.kpi{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 15px;
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:11px 14px;
   box-shadow:0 1px 2px rgba(16,30,54,.045);position:relative;overflow:hidden}
 .kpi::after{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--line)}
 .kpi.up::after{background:var(--up)} .kpi.down::after{background:var(--down)}
 .kpi.accent::after{background:var(--accent)} .kpi.neutral::after{background:#94a3b8}
-.kpi-k{font-size:12px;color:var(--muted);margin-bottom:5px}
-.kpi-v{font-size:25px;font-weight:650;font-variant-numeric:tabular-nums;letter-spacing:-.01em;line-height:1.15}
+.kpi-k{font-size:12px;color:var(--muted);margin-bottom:4px}
+.kpi-v{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.01em;line-height:1.15}
 .kpi-v small{font-size:13px;font-weight:500;color:var(--muted);margin-left:3px}
 .kpi-s{font-size:11.8px;color:var(--muted);margin-top:5px;font-variant-numeric:tabular-nums}
 .t-up{color:var(--up)} .t-down{color:var(--down)} .t-mut{color:var(--muted)}
 /* 流程 */
 ol.steps{list-style:none;margin:0;padding:0}
-ol.steps li{position:relative;padding:0 0 16px 32px;margin-left:9px;border-left:1px dashed var(--line)}
+ol.steps li{position:relative;padding:0 0 12px 32px;margin-left:9px;border-left:1px dashed var(--line)}
+ol.steps li.mid .num{width:10px;height:10px;left:-5px;top:6px;background:#fff;border:2px solid var(--accent)}
+ol.steps li.mid .st{color:var(--muted)}
+ol.steps li.mid .stv{color:var(--accent)}
 ol.steps li:last-child{border-left-color:transparent;padding-bottom:0}
 ol.steps .num{position:absolute;left:-10px;top:1px;width:20px;height:20px;border-radius:50%;
   background:var(--accent);color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;
   font-weight:600;font-variant-numeric:tabular-nums}
 ol.steps .st{font-size:12.8px;color:var(--text)}
 ol.steps .st em{font-style:normal;color:var(--muted)}
-ol.steps .stv{font-size:14.5px;font-weight:650;font-variant-numeric:tabular-nums;margin-top:1px}
+ol.steps .stv{font-size:16.5px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:1px}
 ol.steps .sfee{font-size:11.3px;color:var(--muted);font-weight:400;font-variant-numeric:tabular-nums}
 .flowfoot{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line);display:flex;gap:10px;flex-wrap:wrap}
 .ff{flex:1;min-width:140px;background:var(--soft);border:1px solid var(--line2);border-radius:8px;padding:8px 10px}
@@ -131,7 +137,8 @@ ol.steps .sfee{font-size:11.3px;color:var(--muted);font-weight:400;font-variant-
 .ff .v{font-size:15px;font-weight:650;font-variant-numeric:tabular-nums;margin-top:1px}
 /* 表格 */
 table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
-td,th{padding:8px 10px;font-size:13px;border-bottom:1px solid var(--line2);text-align:right}
+td,th{padding:6px 9px;font-size:13.5px;border-bottom:1px solid var(--line2);text-align:right}
+tbody td:not(:first-child){font-weight:600}
 th:first-child,td:first-child{text-align:left}
 thead th{font-size:11.8px;color:var(--muted);font-weight:500;background:var(--soft);
   border-bottom:1px solid var(--line)}
@@ -149,7 +156,7 @@ tr.sum .tsub{font-weight:400;color:var(--muted)}
 .tag.min{background:var(--warnbg);color:var(--warn);border-color:var(--warnline)}
 .tag.set{background:var(--accent-soft);color:var(--accent);border-color:#b9cffb}
 .tag.loss{background:#fdecec;color:var(--up);border-color:#f6c9c9}
-.stack{display:flex;flex-direction:column;gap:14px}
+.stack{display:flex;flex-direction:column;gap:10px}
 ul.tips{margin:0;padding-left:17px;font-size:12.4px;color:var(--muted);line-height:1.75}
 ul.tips li{margin-bottom:4px}
 ul.tips b{color:var(--text);font-weight:600}
@@ -174,9 +181,9 @@ ul.tips li.on b{color:var(--accent)}
 .rec-ops{margin-top:6px}
 .rec-ops button{padding:5px 0}
 .group-head{padding-bottom:6px;margin-bottom:6px}
-.rec-group{margin-bottom:10px}
-.rec{position:relative;border:1px solid var(--line);border-radius:9px;padding:8px 10px;
-  margin-bottom:6px;transition:.13s;background:#fff}
+.rec-group{margin-bottom:8px}
+.rec{position:relative;border:1px solid var(--line);border-radius:9px;padding:7px 9px;
+  margin-bottom:5px;transition:.13s;background:#fff}
 .rec:hover{border-color:#c9d8ec;background:#fbfdff}
 .rec.on{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 2px rgba(37,99,235,.08)}
 .rec-top{display:flex;align-items:center;gap:6px;font-size:12.6px;font-weight:600;color:var(--text)}
@@ -185,8 +192,8 @@ ul.tips li.on b{color:var(--accent)}
 .rec-sub{font-size:11.5px;color:var(--muted);margin-top:3px;font-variant-numeric:tabular-nums}
 .rec-net{font-size:12.8px;font-weight:650;font-variant-numeric:tabular-nums;margin-top:3px}
 .rec-cut{font-size:11px;font-weight:400;color:var(--muted)}
-.rec-ops{display:flex;gap:6px;margin-top:8px}
-.rec-ops button{flex:1;padding:6px 0;border-radius:6px;font-size:11.8px;font-family:inherit;
+.rec-ops{display:flex;gap:6px;margin-top:6px}
+.rec-ops button{flex:1;padding:5px 0;border-radius:6px;font-size:11.8px;font-family:inherit;
   cursor:pointer;transition:.13s;border:1px solid var(--line);background:#fff;color:var(--muted)}
 .rec-ops .op-fill{border-color:#c9dcfb;background:var(--accent-soft);color:var(--accent);font-weight:600}
 .rec-ops .op-fill:hover{background:#e0ebff;border-color:#a9c6f9}
@@ -322,6 +329,11 @@ ul.tips li.on b{color:var(--accent)}
           <div class="kpi-v" id="vBe">—</div>
           <div class="kpi-s" id="sBe">&nbsp;</div>
         </div>
+        <div class="kpi accent" id="kMid" style="grid-column:1/-1">
+          <div class="kpi-k" id="midTitle">中间态成本（第1步后）</div>
+          <div class="kpi-v" id="vMid">—</div>
+          <div class="kpi-s" id="sMid">&nbsp;</div>
+        </div>
       </div>
 
       <section class="panel">
@@ -345,8 +357,8 @@ ul.tips li.on b{color:var(--accent)}
         </table>
       </section>
 
-      <section class="panel">
-        <h3 class="ph">执行前须知</h3>
+      <details class="panel tips-panel">
+        <summary class="ph">执行前须知（点击展开）</summary>
         <ul class="tips">
           <li id="tipBuyFirst"><b>正T（先买后卖）：</b>先低位买入 N 股，再高位卖出 N 股。需先备足买入资金；当日卖出的必须是<b>底仓</b>（今日买入的 T+1 才可卖），故 N ≤ 可用持仓。主要风险是买入后继续下跌，被迫多持有、成本不降反升。</li>
           <li id="tipSellFirst"><b>反T（先卖后买）：</b>先高位卖出底仓 N 股，再低位买回 N 股。不需要额外资金（A股卖出所得当日即可用于买入）；但<b>若股价不回落就买不回来</b>，筹码丢失或需高价追回，且买回部分同样 T+1。港股通卖出资金 T+2 交割，当日无法买回。</li>
@@ -355,7 +367,7 @@ ul.tips li.on b{color:var(--accent)}
           <li><b>成本口径：</b>按「(原持仓成本总额 − 做T净盈利) ÷ 持仓股数」计算；做T后股数不变，结果等同于券商 App 的<b>摊薄成本</b>（若券商显示的是「买入均价」则不同）。</li>
           <li><b>不含市值变动：</b>只算做T这一动作的现金流盈亏，不含底仓本身的浮盈浮亏。</li>
         </ul>
-      </section>
+      </details>
 
       <div class="footer" id="src"></div>
     </div>
@@ -637,6 +649,21 @@ ul.tips li.on b{color:var(--accent)}
         + (oks ? ' <span class="tag set">已达标</span>' : ' <span class="tag loss">未达标</span>');
     }
 
+    // --- KPI 5 中间态成本（第 1 步执行后的持仓成本，摊薄口径）---
+    var midCost = isBuyFirst ? r.costAfterBuy : r.costAfterSell;
+    var hasMid = isBuyFirst ? r.hasAfterBuy : r.hasAfterSell;
+    var midShares = isBuyFirst ? (c.shares + c.tShares) : (c.shares - c.tShares);
+    $("midTitle").textContent = isBuyFirst ? "中间态成本（买入后）" : "中间态成本（卖出后）";
+    if (!hasMid || !(midCost > 0)){
+      $("vMid").textContent = "—";
+      $("sMid").textContent = "填入持仓、做T股数与价格后自动计算";
+    } else {
+      var dm = midCost - c.cost;
+      $("vMid").innerHTML = midCost.toFixed(3) + "<small>元</small>";
+      $("sMid").innerHTML = "第1步后持仓 " + fmt(midShares, 0) + " 股 · 较原成本 <span class='" + cls(-dm) + "'>"
+        + (dm <= 0 ? "↓ " : "↑ ") + Math.abs(dm).toFixed(3) + "</span> · 第2步完成后 " + r.newCost.toFixed(3);
+    }
+
     // --- 执行流程 ---
     var st1 = isBuyFirst
       ? { t:"买入", p:c.buyPrice,  amt:r.buyOut,  fee:r.buyFee,  inflow:false }
@@ -644,15 +671,21 @@ ul.tips li.on b{color:var(--accent)}
     var st2 = isBuyFirst
       ? { t:"卖出", p:c.sellPrice, amt:r.sellIn,  fee:r.sellFee, inflow:true  }
       : { t:"买回", p:c.buyPrice,  amt:r.buyOut,  fee:r.buyFee,  inflow:false };
-    var flow = "";
-    [st1, st2].forEach(function(st, i){
-      flow += '<li><span class="num">' + (i + 1) + '</span>'
+    function stepLi(st, n){
+      return '<li><span class="num">' + n + '</span>'
         + '<div class="st">' + st.t + " " + fmt(c.tShares, 0) + ' 股 <em>@ ' + st.p.toFixed(3) + ' 元</em></div>'
         + '<div class="stv ' + (st.inflow ? "t-up" : "t-mut") + '">'
         + (st.inflow ? "+" : "\u2212") + yuan(st.amt, 3)
         + '<span class="sfee">　' + (st.inflow ? "回款" : "支出") + "（成交额 " + yuan(st.p * c.tShares, 2)
         + " ，费用 " + yuan(st.fee, 3) + "）</span></div></li>";
-    });
+    }
+    var flow = stepLi(st1, 1);
+    if (hasMid && midCost > 0){
+      flow += '<li class="mid"><span class="num"></span>'
+        + '<div class="st">中间态 · 持仓 ' + fmt(midShares, 0) + ' 股</div>'
+        + '<div class="stv">成本 ' + midCost.toFixed(3) + ' 元</div></li>';
+    }
+    flow += stepLi(st2, 2);
     $("flow").innerHTML = flow;
 
     var needCash = isBuyFirst ? r.buyOut : Math.max(0, r.buyOut - r.sellIn);
