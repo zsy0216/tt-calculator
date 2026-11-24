@@ -321,7 +321,7 @@ ul.tips li.on b{color:var(--accent)}
           <div class="kpi-s" id="sCost">&nbsp;</div>
         </div>
         <div class="kpi" id="kCut">
-          <div class="kpi-k">每股成本降低</div>
+          <div class="kpi-k">持仓每股成本降低</div>
           <div class="kpi-v" id="vCut">—</div>
           <div class="kpi-s" id="sCut">&nbsp;</div>
         </div>
@@ -613,7 +613,7 @@ ul.tips li.on b{color:var(--accent)}
     kc.className = "kpi " + (r.perShareCut > 0 ? "up" : (r.perShareCut < 0 ? "down" : "neutral"));
     $("vCut").innerHTML = '<span class="' + cls(r.perShareCut) + '">' + (r.perShareCut >= 0 ? "" : "\u2212")
       + Math.abs(r.perShareCut).toFixed(4) + "</span><small>元/股</small>";
-    $("sCut").textContent = "成本降幅 " + pct(c.cost > 0 ? r.perShareCut / c.cost : 0, 3);
+    $("sCut").textContent = "净盈利 ÷ 全部持仓 " + fmt(c.shares, 0) + " 股摊薄 · 降幅 " + pct(c.cost > 0 ? r.perShareCut / c.cost : 0, 3);
 
     // 保本卡片已按用户要求移除（保本价仍在敏感性表以「保本」行标出）；中间态成本改放执行流程内
     // --- 中间态成本（第 1 步执行后的持仓成本，摊薄口径，供流程行使用）---
@@ -636,9 +636,15 @@ ul.tips li.on b{color:var(--accent)}
         + '<span class="sfee">　' + (st.inflow ? "回款" : "支出") + "（成交额 " + yuan(st.p * c.tShares, 2)
         + " ，费用 " + yuan(st.fee, 3) + "）</span></div></li>";
     }
-    // 中间态放在两步之间：持仓股数 + 成本价 + 较原成本的变化（此数只在此处出现）
+    // 中间态放在两步之间：持仓股数 + 成本价 + 较原成本的变化（此数只在此处出现）；正反T 一致
     var flow = stepLi(st1, 1);
-    if (hasMid && midCost > 0){
+    if (!isBuyFirst && c.tShares > 0 && r.sellAmount > 0 && midShares <= 0){
+      // 反T 把底仓全卖光：中间态无持仓，也给一行，和正T 保持一致
+      flow += '<li class="mid"><span class="num"></span>'
+        + '<div class="st">中间态 · 持仓 0 股</div>'
+        + '<div class="stv">已全部卖出 · 待买回</div></li>';
+    } else if (hasMid && isFinite(midCost)){
+      // 不再要求成本 > 0：反T 卖得够赚时剩余持仓摊薄成本可为负，照实显示
       var dm2 = midCost - c.cost;
       flow += '<li class="mid"><span class="num"></span>'
         + '<div class="st">中间态 · 持仓 ' + fmt(midShares, 0) + ' 股</div>'
@@ -1566,7 +1572,7 @@ ul.tips li.on b{color:var(--accent)}
       + '<div class="rec-sub">' + fmt(p.shares, 0) + " 股 · 买 " + p.buyPrice.toFixed(3)
       + " / 卖 " + p.sellPrice.toFixed(3) + " · 成本 " + p.cost.toFixed(3) + "</div>"
       + '<div class="rec-net ' + cls(r.net) + '">' + sgn(r.net) + yuan(Math.abs(r.net))
-      + '<span class="rec-cut">　每股降 ' + Math.abs(r.perShareCut).toFixed(4) + "</span></div>"
+      + '<span class="rec-cut">　持仓每股降 ' + Math.abs(r.perShareCut).toFixed(4) + "</span></div>"
       + '<div class="rec-ops">'
       + '<button type="button" class="op-fill" data-fill="' + esc(rec.id)
       + '" data-fillto="buyFirst" title="把这条记录的参数填到正T（先买后卖）输入栏">回填正T</button>'
