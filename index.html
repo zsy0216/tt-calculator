@@ -105,8 +105,9 @@ input[type=text]::placeholder{color:#b6c2d2;font-size:13px}
   font-size:12px;color:var(--warn);line-height:1.65;margin-top:10px}
 .warnbox:empty{display:none}
 /* KPI */
-.kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-@media(max-width:560px){.kpis{grid-template-columns:1fr}}
+.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media(max-width:1280px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))} .kpis .kpi:last-child{grid-column:1/-1}}
+@media(max-width:560px){.kpis{grid-template-columns:1fr} .kpis .kpi:last-child{grid-column:auto}}
 .kpi{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:11px 14px;
   box-shadow:0 1px 2px rgba(16,30,54,.045);position:relative;overflow:hidden}
 .kpi::after{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--line)}
@@ -252,7 +253,7 @@ ul.tips li.on b{color:var(--accent)}
 <body>
 <div class="wrap">
   <h1>做T辅助计算器</h1>
-  <div class="sub">区分正T（先买后卖）与反T（先卖后买），实时算出净盈利、做T后成本价、成本降幅与保本价位 · 佣金 / 最低佣金 / 印花税 / 过户费全口径</div>
+  <div class="sub">区分正T（先买后卖）与反T（先卖后买），实时算出净盈利、做T后成本价与每股降本 · 佣金 / 最低佣金 / 印花税 / 过户费全口径</div>
 
   <div class="grid">
     <!-- ============ 左栏：输入 ============ -->
@@ -323,16 +324,6 @@ ul.tips li.on b{color:var(--accent)}
           <div class="kpi-k">每股成本降低</div>
           <div class="kpi-v" id="vCut">—</div>
           <div class="kpi-s" id="sCut">&nbsp;</div>
-        </div>
-        <div class="kpi neutral" id="kBe">
-          <div class="kpi-k" id="beTitle">保本卖出价</div>
-          <div class="kpi-v" id="vBe">—</div>
-          <div class="kpi-s" id="sBe">&nbsp;</div>
-        </div>
-        <div class="kpi accent" id="kMid" style="grid-column:1/-1">
-          <div class="kpi-k" id="midTitle">中间态成本（第1步后）</div>
-          <div class="kpi-v" id="vMid">—</div>
-          <div class="kpi-s" id="sMid">&nbsp;</div>
         </div>
       </div>
 
@@ -585,7 +576,6 @@ ul.tips li.on b{color:var(--accent)}
     // === 方向相关文案 ===
     $("dirHint").textContent = isBuyFirst ? "先买入，后卖出" : "先卖出，后买回";
     $("netTitle").textContent = "本次做T净盈利" + (isBuyFirst ? "（正T）" : "（反T）");
-    $("beTitle").textContent = isBuyFirst ? "保本卖出价（下限）" : "保本买入价（上限）";
     $("flowDir").textContent = isBuyFirst ? "正T · 先买后卖" : "反T · 先卖后买";
     $("sensNote").textContent = isBuyFirst
       ? "改卖出价 · 升序：亏损 2 档 → 保本 → 当前 → 预测 3 档"
@@ -625,41 +615,11 @@ ul.tips li.on b{color:var(--accent)}
       + Math.abs(r.perShareCut).toFixed(4) + "</span><small>元/股</small>";
     $("sCut").textContent = "成本降幅 " + pct(c.cost > 0 ? r.perShareCut / c.cost : 0, 3);
 
-    // --- KPI 4 保本价位 ---
-    if (c.tShares <= 0 || refPrice <= 0){
-      $("vBe").textContent = "—";
-      $("sBe").textContent = "填入做T股数与价格后自动计算";
-    } else if (!hasBe){
-      $("vBe").textContent = "无法保本";
-      $("sBe").textContent = "当前费率下该笔交易不可能盈利";
-    } else if (isBuyFirst){
-      var okb = c.sellPrice >= be;
-      $("vBe").innerHTML = be.toFixed(3) + "<small>元</small>";
-      $("sBe").innerHTML = "卖出价须 ≥ 此价；最小价差 " + (be - c.buyPrice).toFixed(4) + " 元（"
-        + (c.buyPrice > 0 ? ((be - c.buyPrice) / c.buyPrice * 100).toFixed(3) : "0") + "%）"
-        + (okb ? ' <span class="tag set">已达标</span>' : ' <span class="tag loss">未达标</span>');
-    } else {
-      var oks = c.buyPrice <= be;
-      $("vBe").innerHTML = be.toFixed(3) + "<small>元</small>";
-      $("sBe").innerHTML = "买回价须 ≤ 此价；最小价差 " + (c.sellPrice - be).toFixed(4) + " 元（"
-        + (c.sellPrice > 0 ? ((c.sellPrice - be) / c.sellPrice * 100).toFixed(3) : "0") + "%）"
-        + (oks ? ' <span class="tag set">已达标</span>' : ' <span class="tag loss">未达标</span>');
-    }
-
-    // --- KPI 5 中间态成本（第 1 步执行后的持仓成本，摊薄口径）---
+    // 保本卡片已按用户要求移除（保本价仍在敏感性表以「保本」行标出）；中间态成本改放执行流程内
+    // --- 中间态成本（第 1 步执行后的持仓成本，摊薄口径，供流程行使用）---
     var midCost = isBuyFirst ? r.costAfterBuy : r.costAfterSell;
     var hasMid = isBuyFirst ? r.hasAfterBuy : r.hasAfterSell;
     var midShares = isBuyFirst ? (c.shares + c.tShares) : (c.shares - c.tShares);
-    $("midTitle").textContent = isBuyFirst ? "中间态成本（买入后）" : "中间态成本（卖出后）";
-    if (!hasMid || !(midCost > 0)){
-      $("vMid").textContent = "—";
-      $("sMid").textContent = "填入持仓、做T股数与价格后自动计算";
-    } else {
-      var dm = midCost - c.cost;
-      $("vMid").innerHTML = midCost.toFixed(3) + "<small>元</small>";
-      $("sMid").innerHTML = "第1步后持仓 " + fmt(midShares, 0) + " 股 · 较原成本 <span class='" + cls(-dm) + "'>"
-        + (dm <= 0 ? "↓ " : "↑ ") + Math.abs(dm).toFixed(3) + "</span>";   // 最终成本只在「做T后持仓成本价」卡显示
-    }
 
     // --- 执行流程 ---
     var st1 = isBuyFirst
@@ -676,8 +636,17 @@ ul.tips li.on b{color:var(--accent)}
         + '<span class="sfee">　' + (st.inflow ? "回款" : "支出") + "（成交额 " + yuan(st.p * c.tShares, 2)
         + " ，费用 " + yuan(st.fee, 3) + "）</span></div></li>";
     }
-    // 中间态成本只在 KPI 大卡显示，流程里不再重复一行
-    var flow = stepLi(st1, 1) + stepLi(st2, 2);
+    // 中间态放在两步之间：持仓股数 + 成本价 + 较原成本的变化（此数只在此处出现）
+    var flow = stepLi(st1, 1);
+    if (hasMid && midCost > 0){
+      var dm2 = midCost - c.cost;
+      flow += '<li class="mid"><span class="num"></span>'
+        + '<div class="st">中间态 · 持仓 ' + fmt(midShares, 0) + ' 股</div>'
+        + '<div class="stv">成本 ' + midCost.toFixed(3) + ' 元'
+        + '<span class="sfee">　较原成本 <span class="' + cls(-dm2) + '">'
+        + (dm2 <= 0 ? "↓ " : "↑ ") + Math.abs(dm2).toFixed(3) + '</span></span></div></li>';
+    }
+    flow += stepLi(st2, 2);
     $("flow").innerHTML = flow;
     // 流程底部不再设汇总格：需备资金即第 1 步支出额（流程行内已含费用），其余指标各有唯一出处
 
